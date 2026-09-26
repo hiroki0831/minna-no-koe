@@ -3,5 +3,5 @@
 window.APP_CONFIG = {
   supabaseUrl: 'https://zcdgagjvpmxarvuicawz.supabase.co',
   supabaseAnonKey: 'sb_publishable_s2-PVScF-hTYVwoSVcjDPQ_D-7znI-9',
-  enableAiSummary: false
+  enableAiSummary: true
 };
