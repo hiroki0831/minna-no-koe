@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#172a44">
+  <title>みんなの声｜ChatGPT連携</title>
+  <style>
+    :root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#172a44;background:#f4f7fb}
+    *{box-sizing:border-box}body{margin:0}
+    header{background:#172a44;color:#fff;padding:17px 18px;font-size:21px;font-weight:700}
+    main{max-width:680px;margin:auto;padding:20px}
+    .card{background:#fff;border-radius:18px;padding:22px;margin:0 0 16px;box-shadow:0 3px 15px #1327440b}
+    label{display:block;font-weight:650;margin:14px 0 6px}
+    input,button{font:inherit}
+    input{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px}
+    button{border:0;border-radius:11px;padding:12px 16px;font-weight:700;background:#2466cc;color:#fff;cursor:pointer}
+    button:disabled{opacity:.55}
+    .secondary{background:#e7edf5;color:#24384f}
+    .danger{background:#9f2730}
+    .row{display:flex;gap:10px;flex-wrap:wrap}
+    .hidden{display:none}
+    .muted{color:#617084;font-size:14px}
+    .error{color:#b42318}
+    .success{color:#127345}
+    code{overflow-wrap:anywhere}
+    .scope{padding:8px 10px;background:#edf4ff;border-radius:10px;display:inline-block;margin:3px}
+  </style>
+</head>
+<body>
+<header>🎙 みんなの声｜ChatGPT連携</header>
+<main>
+  <div id="message" role="status" aria-live="polite"></div>
+
+  <section id="login" class="card hidden">
+    <h2>みんなの声にログイン</h2>
+    <p class="muted">
+      ChatGPTからあなたの「みんなの声」データへアクセスするため、
+      普段使っているアカウントでログインしてください。
+    </p>
+    <label for="email">メールアドレス</label>
+    <input id="email" type="email" autocomplete="email">
+    <label for="password">パスワード</label>
+    <input id="password" type="password" autocomplete="current-password">
+    <p><button id="signIn">ログインして続ける</button></p>
+  </section>
+
+  <section id="consent" class="card hidden">
+    <h2>連携を許可しますか？</h2>
+    <p><strong id="clientName">ChatGPT</strong> が「みんなの声」へのアクセスを求めています。</p>
+    <p class="muted">
+      あなた自身が「みんなの声」で閲覧できる範囲だけが、
+      SupabaseのRLSによって許可されます。
+    </p>
+
+    <p><strong>要求される権限</strong></p>
+    <div id="scopes"></div>
+
+    <p class="muted">戻り先: <code id="redirectUri"></code></p>
+    <div class="row">
+      <button id="approve">許可する</button>
+      <button id="deny" class="danger">拒否する</button>
+    </div>
+  </section>
+</main>
+
+<script src="../../config.js"></script>
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const $ = id => document.getElementById(id);
+const cfg = window.APP_CONFIG || {};
+const authorizationId = new URLSearchParams(location.search).get('authorization_id');
+let sb;
+
+function show(id, yes){ $(id).classList.toggle('hidden', !yes); }
+function msg(text, error=false){
+  $('message').textContent = text;
+  $('message').className = error ? 'error' : 'success';
+}
+
+async function loadConsent(){
+  if(!authorizationId){
+    msg('authorization_id がありません。ChatGPTからもう一度接続を開始してください。', true);
+    return;
+  }
+
+  const { data: userData, error: userError } = await sb.auth.getUser();
+
+  if(userError || !userData?.user){
+    show('login', true);
+    show('consent', false);
+    return;
+  }
+
+  const { data, error } = await sb.auth.oauth.getAuthorizationDetails(authorizationId);
+
+  if(error || !data){
+    msg('連携情報を取得できません: ' + (error?.message || '不明なエラー'), true);
+    return;
+  }
+
+  // 以前に同じクライアントへ許可済みなら、そのまま戻す
+  if(!('authorization_id' in data)){
+    location.href = data.redirect_url;
+    return;
+  }
+
+  $('clientName').textContent = data.client?.name || 'ChatGPT';
+  $('redirectUri').textContent = data.redirect_uri || '';
+
+  $('scopes').replaceChildren();
+  const scopes = (data.scope || '').split(' ').filter(Boolean);
+  if(scopes.length){
+    for(const scope of scopes){
+      const span = document.createElement('span');
+      span.className = 'scope';
+      span.textContent = scope;
+      $('scopes').append(span);
+    }
+  }else{
+    const span = document.createElement('span');
+    span.className = 'scope';
+    span.textContent = 'email';
+    $('scopes').append(span);
+  }
+
+  show('login', false);
+  show('consent', true);
+}
+
+$('signIn').onclick = async () => {
+  const email = $('email').value.trim();
+  const password = $('password').value;
+
+  if(!email || !password){
+    msg('メールアドレスとパスワードを入力してください。', true);
+    return;
+  }
+
+  $('signIn').disabled = true;
+  const { error } = await sb.auth.signInWithPassword({ email, password });
+  $('signIn').disabled = false;
+
+  if(error){
+    msg('ログインできません: ' + error.message, true);
+    return;
+  }
+
+  msg('ログインしました。');
+  await loadConsent();
+};
+
+$('approve').onclick = async () => {
+  $('approve').disabled = true;
+  const { data, error } = await sb.auth.oauth.approveAuthorization(authorizationId);
+
+  if(error){
+    $('approve').disabled = false;
+    msg('許可処理に失敗しました: ' + error.message, true);
+    return;
+  }
+
+  location.href = data.redirect_url;
+};
+
+$('deny').onclick = async () => {
+  $('deny').disabled = true;
+  const { data, error } = await sb.auth.oauth.denyAuthorization(authorizationId);
+
+  if(error){
+    $('deny').disabled = false;
+    msg('拒否処理に失敗しました: ' + error.message, true);
+    return;
+  }
+
+  location.href = data.redirect_url;
+};
+
+(async () => {
+  if(!cfg.supabaseUrl || !cfg.supabaseAnonKey){
+    msg('config.js が読み込めません。', true);
+    return;
+  }
+
+  sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+  await loadConsent();
+})().catch(e => msg('初期化エラー: ' + e.message, true));
+</script>
+</body>
+</html>
