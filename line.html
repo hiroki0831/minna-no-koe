@@ -5,68 +5,49 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>LINE受信箱</title>
 <meta name="theme-color" content="#172a44">
-
 <style>
-:root{
-  font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;
-  color:#172a44;
-  background:#f4f7fb
-}
+:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#172a44;background:#f4f7fb}
 *{box-sizing:border-box}
 body{margin:0}
-header{
-  background:#172a44;color:white;padding:16px 18px;
-  display:flex;justify-content:space-between;align-items:center;
-  position:sticky;top:0
-}
+header{background:#172a44;color:white;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:2}
 header b{font-size:20px}
 header a{color:white}
 main{max-width:760px;margin:auto;padding:14px}
-
-.card{
-  background:white;border-radius:16px;padding:16px;
-  margin-bottom:14px;box-shadow:0 3px 16px #1327440c
-}
+.card{background:white;border-radius:16px;padding:16px;margin-bottom:14px;box-shadow:0 3px 16px #1327440c}
 .row{display:flex;gap:10px;align-items:center}
 .between{justify-content:space-between}
 .wrap{flex-wrap:wrap}
 .hidden{display:none!important}
-
-input,textarea,button{font:inherit}
-input,textarea{
-  width:100%;padding:11px 12px;border:1px solid #cbd5e1;
-  border-radius:10px;background:white
-}
+input,textarea,select,button{font:inherit}
+input,textarea,select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:10px;background:white;color:#172a44}
 textarea{min-height:74px;resize:vertical}
-
-button{
-  border:0;border-radius:10px;background:#2466cc;color:white;
-  padding:10px 14px;font-weight:700;cursor:pointer
-}
+button{border:0;border-radius:10px;background:#2466cc;color:white;padding:10px 14px;font-weight:700;cursor:pointer}
 button.secondary{background:#e7edf5;color:#24384f}
+button.danger{background:#ae2631}
 button:disabled{opacity:.5}
-
 label{display:block;font-weight:700;margin:12px 0 6px}
 .muted{color:#617084;font-size:13px}
 .error{color:#b42318}
 .success{color:#127345}
-
 .entry{border-top:1px solid #e2e8f0;padding:16px 0}
 .entry:first-child{border-top:0}
 .entry h3{margin:0}
 .message{white-space:pre-wrap;margin:10px 0}
-
-.pill{
-  display:inline-block;border-radius:999px;
-  padding:4px 9px;font-size:12px
-}
+.pill{display:inline-block;border-radius:999px;padding:4px 9px;font-size:12px}
 .green{background:#e8f7ef;color:#187744}
 .gray{background:#eef1f4;color:#526273}
-
-.reply{
-  margin-top:12px;padding-top:12px;
-  border-top:1px dashed #cbd5e1
-}
+.red{background:#fdecec;color:#a82727}
+.blue{background:#e8f2ff;color:#2459a7}
+.orange{background:#fff0dc;color:#9a5600}
+.purple{background:#f3eaff;color:#6c3fa0}
+.badges{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.reply{margin-top:12px;padding-top:12px;border-top:1px dashed #cbd5e1}
+.filters{margin-top:14px}
+.filters select{width:auto;min-width:150px}
+.check{display:flex;align-items:center;gap:7px;margin:0;font-weight:600}
+.check input{width:auto}
+.entry-actions{display:flex;justify-content:flex-end;margin-top:12px}
+.entry-actions .danger{padding:8px 13px;font-size:13px}
 #status{margin:8px 0 12px}
 </style>
 </head>
@@ -87,19 +68,12 @@ label{display:block;font-weight:700;margin:12px 0 6px}
 
 <section id="auth" class="card">
   <h2>ログイン</h2>
-  <p class="muted">
-    「みんなの声」と同じアカウントでログインしてください。
-  </p>
-
+  <p class="muted">「みんなの声」と同じアカウントでログインしてください。</p>
   <label>メールアドレス</label>
   <input id="email" type="email">
-
   <label>パスワード</label>
   <input id="password" type="password">
-
-  <p>
-    <button id="signin">ログイン</button>
-  </p>
+  <p><button id="signin">ログイン</button></p>
 </section>
 
 <section id="app" class="hidden">
@@ -112,6 +86,24 @@ label{display:block;font-weight:700;margin:12px 0 6px}
       </div>
       <button id="refresh" class="secondary">更新</button>
     </div>
+
+    <div class="row wrap filters">
+      <select id="classFilter">
+        <option value="">すべての分類</option>
+        <option value="要返信">要返信</option>
+        <option value="確認だけ">確認だけ</option>
+        <option value="日程">日程</option>
+        <option value="依頼">依頼</option>
+        <option value="その他">その他</option>
+      </select>
+
+      <label class="check">
+        <input id="replyOnly" type="checkbox">
+        要返信のみ
+      </label>
+    </div>
+
+    <div id="summary" class="muted" style="margin-top:10px"></div>
   </div>
 
   <div class="card">
@@ -125,50 +117,44 @@ label{display:block;font-weight:700;margin:12px 0 6px}
 <script src="config.js"></script>
 
 <script type="module">
-
-import {createClient}
-from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 const cfg = window.APP_CONFIG || {};
 const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
-
 const $ = id => document.getElementById(id);
 
 function status(text,error=false){
   $('status').textContent=text;
   $('status').className=error?'error':'success';
 }
-
-function show(id,yes){
-  $(id).classList.toggle('hidden',!yes);
-}
-
-function time(t){
-  return new Date(t).toLocaleString('ja-JP');
-}
-
+function show(id,yes){ $(id).classList.toggle('hidden',!yes); }
+function time(t){ return new Date(t).toLocaleString('ja-JP'); }
 function remain(t){
-  return Math.max(
-    0,
-    Math.floor((new Date(t).getTime()-Date.now())/1000)
-  );
+  return Math.max(0,Math.floor((new Date(t).getTime()-Date.now())/1000));
+}
+function makePill(text,cls='gray'){
+  const s=document.createElement('span');
+  s.className='pill '+cls;
+  s.textContent=text;
+  return s;
+}
+function categoryClass(name){
+  if(name==='要返信') return 'red';
+  if(name==='日程') return 'blue';
+  if(name==='依頼') return 'orange';
+  if(name==='確認だけ') return 'green';
+  return 'gray';
 }
 
 async function sessionCheck(){
-
   const {data:{session}} = await sb.auth.getSession();
-
   show('auth',!session);
   show('app',!!session);
   show('logout',!!session);
-
-  if(session){
-    await loadMessages();
-  }
+  if(session) await loadMessages();
 }
 
 async function login(){
-
   const email=$('email').value.trim();
   const password=$('password').value;
 
@@ -178,11 +164,7 @@ async function login(){
   }
 
   $('signin').disabled=true;
-
-  const {error}=await sb.auth.signInWithPassword({
-    email,password
-  });
-
+  const {error}=await sb.auth.signInWithPassword({email,password});
   $('signin').disabled=false;
 
   if(error){
@@ -191,12 +173,10 @@ async function login(){
   }
 
   status('ログインしました。');
-
   await sessionCheck();
 }
 
 async function sendReply(row,textarea,button){
-
   const text=textarea.value.trim();
 
   if(!text){
@@ -204,62 +184,88 @@ async function sendReply(row,textarea,button){
     return;
   }
 
-  if(
-    !row.reply_available_until ||
-    new Date(row.reply_available_until).getTime() <= Date.now()
-  ){
+  if(!row.reply_available_until ||
+     new Date(row.reply_available_until).getTime() <= Date.now()){
     status('無料返信の期限が終了しました。',true);
     await loadMessages();
     return;
   }
 
-  if(!confirm(
-    '「'+(row.sender_display_name || 'この相手')+
-    '」へ個別返信しますか？'
-  )) return;
+  if(!confirm('「'+(row.sender_display_name || 'この相手')+'」へ個別返信しますか？')) return;
 
   button.disabled=true;
 
-  const {data,error}=await sb.functions.invoke(
-    'line-reply',
-    {
-      body:{
-        line_message_id:row.line_message_id,
-        text:text
-      }
+  const {data,error}=await sb.functions.invoke('line-reply',{
+    body:{
+      line_message_id:row.line_message_id,
+      text:text
     }
-  );
+  });
 
   button.disabled=false;
 
   if(error || !data?.ok){
-
     status(
       '返信に失敗しました：'+
       (data?.error || error?.message || '不明なエラー'),
       true
     );
-
     await loadMessages();
     return;
   }
 
   status('LINEへ個別返信しました。');
+  await loadMessages();
+}
+
+async function deleteLine(row,button){
+  const sender=row.sender_display_name || '送信者名不明';
+  const note=row.promoted_post_id
+    ? '\n\n※「みんなの声」に登録済みの意見は残します。LINE受信箱からだけ削除します。'
+    : '';
+
+  if(!confirm(
+    '「'+sender+'」のこのLINEを受信箱から削除しますか？\n'+
+    'この操作は元に戻せません。'+note
+  )) return;
+
+  button.disabled=true;
+
+  const {data,error}=await sb.functions.invoke('line-delete',{
+    body:{line_message_id:row.line_message_id}
+  });
+
+  button.disabled=false;
+
+  if(error || !data?.ok){
+    status(
+      '削除に失敗しました：'+
+      (data?.error || error?.message || '不明なエラー'),
+      true
+    );
+    return;
+  }
+
+  status(
+    data.kept_promoted_post
+      ? 'LINE受信箱から削除しました。「みんなの声」の意見は残しています。'
+      : 'LINE受信箱から削除しました。'
+  );
 
   await loadMessages();
 }
 
 async function loadMessages(){
-
   const area=$('entries');
-
   area.textContent='読み込み中…';
 
   const {data,error}=await sb
     .from('line_messages')
     .select(
       'id,sender_display_name,message_text,message_type,'+
-      'line_message_id,created_at,reply_available_until,replied_at'
+      'line_message_id,created_at,reply_available_until,replied_at,'+
+      'classification,needs_reply,classification_reason,'+
+      'opinion_status,promoted_post_id'
     )
     .eq('direction','in')
     .order('created_at',{ascending:false})
@@ -273,12 +279,37 @@ async function loadMessages(){
   }
 
   if(!data?.length){
+    $('summary').textContent='';
     area.textContent='まだLINEメッセージはありません。';
     return;
   }
 
+  const counts={};
   for(const row of data){
+    const key=row.classification||'その他';
+    counts[key]=(counts[key]||0)+1;
+  }
 
+  const replyCount=data.filter(x=>x.needs_reply && !x.replied_at).length;
+  $('summary').textContent=
+    '要返信 '+replyCount+'件 ／ 日程 '+(counts['日程']||0)+
+    '件 ／ 依頼 '+(counts['依頼']||0)+
+    '件 ／ 確認だけ '+(counts['確認だけ']||0)+'件';
+
+  const classFilter=$('classFilter').value;
+  const replyOnly=$('replyOnly').checked;
+
+  const shown=data.filter(row=>
+    (!classFilter || (row.classification||'その他')===classFilter) &&
+    (!replyOnly || (row.needs_reply && !row.replied_at))
+  );
+
+  if(!shown.length){
+    area.textContent='この条件に当てはまるLINEはありません。';
+    return;
+  }
+
+  for(const row of shown){
     const article=document.createElement('div');
     article.className='entry';
 
@@ -286,62 +317,59 @@ async function loadMessages(){
     top.className='row between wrap';
 
     const name=document.createElement('h3');
-
-    name.textContent=
-      row.sender_display_name || '送信者名不明';
-
+    name.textContent=row.sender_display_name || '送信者名不明';
     top.append(name);
+
+    const badges=document.createElement('div');
+    badges.className='badges';
+
+    const category=row.classification || 'その他';
+    const cp=makePill(category,categoryClass(category));
+    cp.title=row.classification_reason || '';
+    badges.append(cp);
+
+    if(row.needs_reply && category!=='要返信' && !row.replied_at){
+      badges.append(makePill('要返信','red'));
+    }
+
+    if(row.opinion_status==='promoted'){
+      badges.append(makePill('みんなの声登録済み','purple'));
+    }else if(row.opinion_status==='review'){
+      badges.append(makePill('意見判定 要確認','orange'));
+    }
 
     const available=
       !row.replied_at &&
       row.reply_available_until &&
       new Date(row.reply_available_until).getTime() > Date.now();
 
-    const badge=document.createElement('span');
-    badge.className='pill';
-
     if(row.replied_at){
-
-      badge.classList.add('green');
-      badge.textContent='返信済み';
-
+      badges.append(makePill('返信済み','green'));
     }else if(available){
-
-      badge.classList.add('green');
-      badge.textContent='無料返信可';
-
+      badges.append(makePill('無料返信可','green'));
     }else{
-
-      badge.classList.add('gray');
-      badge.textContent='無料返信期限終了';
+      badges.append(makePill('無料返信期限終了','gray'));
     }
 
-    top.append(badge);
+    top.append(badges);
     article.append(top);
 
     const message=document.createElement('p');
     message.className='message';
-
-    message.textContent=
-      row.message_text ??
-      '['+(row.message_type || 'message')+']';
-
+    message.textContent=row.message_text ?? '['+(row.message_type || 'message')+']';
     article.append(message);
 
     const date=document.createElement('small');
     date.className='muted';
     date.textContent=time(row.created_at);
-
     article.append(date);
 
     if(available){
-
       const box=document.createElement('div');
       box.className='reply';
 
       const input=document.createElement('textarea');
       input.placeholder='この相手への返信文';
-
       box.append(input);
 
       const controls=document.createElement('div');
@@ -352,51 +380,52 @@ async function loadMessages(){
       counter.className='muted';
 
       function countdown(){
-        counter.textContent=
-          '無料返信の残り目安：'+
-          remain(row.reply_available_until)+'秒';
+        counter.textContent='無料返信の残り目安：'+remain(row.reply_available_until)+'秒';
       }
 
       countdown();
 
       const timer=setInterval(()=>{
-
         if(!document.body.contains(counter)){
           clearInterval(timer);
           return;
         }
-
         countdown();
-
       },1000);
 
-      const button=document.createElement('button');
-      button.textContent='個別に無料返信';
+      const replyButton=document.createElement('button');
+      replyButton.textContent='個別に無料返信';
+      replyButton.onclick=()=>sendReply(row,input,replyButton);
 
-      button.onclick=()=>{
-        sendReply(row,input,button);
-      };
-
-      controls.append(counter,button);
+      controls.append(counter,replyButton);
       box.append(controls);
-
       article.append(box);
     }
+
+    const actions=document.createElement('div');
+    actions.className='entry-actions';
+
+    const remove=document.createElement('button');
+    remove.type='button';
+    remove.className='danger';
+    remove.textContent='削除';
+    remove.onclick=()=>deleteLine(row,remove);
+
+    actions.append(remove);
+    article.append(actions);
 
     area.append(article);
   }
 }
 
 $('signin').onclick=login;
-
 $('refresh').onclick=loadMessages;
+$('classFilter').onchange=loadMessages;
+$('replyOnly').onchange=loadMessages;
 
 $('logout').onclick=async()=>{
-
   await sb.auth.signOut();
-
   status('ログアウトしました。');
-
   await sessionCheck();
 };
 
@@ -405,7 +434,6 @@ sb.auth.onAuthStateChange(()=>{
 });
 
 sessionCheck();
-
 </script>
 
 </body>
