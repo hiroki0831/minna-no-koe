@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LINE受信箱</title>
+<meta name="theme-color" content="#172a44">
+
+<style>
+:root{
+  font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;
+  color:#172a44;
+  background:#f4f7fb
+}
+*{box-sizing:border-box}
+body{margin:0}
+header{
+  background:#172a44;color:white;padding:16px 18px;
+  display:flex;justify-content:space-between;align-items:center;
+  position:sticky;top:0
+}
+header b{font-size:20px}
+header a{color:white}
+main{max-width:760px;margin:auto;padding:14px}
+
+.card{
+  background:white;border-radius:16px;padding:16px;
+  margin-bottom:14px;box-shadow:0 3px 16px #1327440c
+}
+.row{display:flex;gap:10px;align-items:center}
+.between{justify-content:space-between}
+.wrap{flex-wrap:wrap}
+.hidden{display:none!important}
+
+input,textarea,button{font:inherit}
+input,textarea{
+  width:100%;padding:11px 12px;border:1px solid #cbd5e1;
+  border-radius:10px;background:white
+}
+textarea{min-height:74px;resize:vertical}
+
+button{
+  border:0;border-radius:10px;background:#2466cc;color:white;
+  padding:10px 14px;font-weight:700;cursor:pointer
+}
+button.secondary{background:#e7edf5;color:#24384f}
+button:disabled{opacity:.5}
+
+label{display:block;font-weight:700;margin:12px 0 6px}
+.muted{color:#617084;font-size:13px}
+.error{color:#b42318}
+.success{color:#127345}
+
+.entry{border-top:1px solid #e2e8f0;padding:16px 0}
+.entry:first-child{border-top:0}
+.entry h3{margin:0}
+.message{white-space:pre-wrap;margin:10px 0}
+
+.pill{
+  display:inline-block;border-radius:999px;
+  padding:4px 9px;font-size:12px
+}
+.green{background:#e8f7ef;color:#187744}
+.gray{background:#eef1f4;color:#526273}
+
+.reply{
+  margin-top:12px;padding-top:12px;
+  border-top:1px dashed #cbd5e1
+}
+#status{margin:8px 0 12px}
+</style>
+</head>
+
+<body>
+
+<header>
+  <b>💬 LINE受信箱</b>
+  <div class="row">
+    <a href="./">みんなの声</a>
+    <button id="logout" class="secondary hidden">ログアウト</button>
+  </div>
+</header>
+
+<main>
+
+<div id="status"></div>
+
+<section id="auth" class="card">
+  <h2>ログイン</h2>
+  <p class="muted">
+    「みんなの声」と同じアカウントでログインしてください。
+  </p>
+
+  <label>メールアドレス</label>
+  <input id="email" type="email">
+
+  <label>パスワード</label>
+  <input id="password" type="password">
+
+  <p>
+    <button id="signin">ログイン</button>
+  </p>
+</section>
+
+<section id="app" class="hidden">
+
+  <div class="card">
+    <div class="row between wrap">
+      <div>
+        <h2 style="margin:0">受信メッセージ</h2>
+        <small class="muted">新しい順</small>
+      </div>
+      <button id="refresh" class="secondary">更新</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div id="entries"></div>
+  </div>
+
+</section>
+
+</main>
+
+<script src="config.js"></script>
+
+<script type="module">
+
+import {createClient}
+from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+const cfg = window.APP_CONFIG || {};
+const sb = createClient(cfg.supabaseUrl, cfg.supabaseAnonKey);
+
+const $ = id => document.getElementById(id);
+
+function status(text,error=false){
+  $('status').textContent=text;
+  $('status').className=error?'error':'success';
+}
+
+function show(id,yes){
+  $(id).classList.toggle('hidden',!yes);
+}
+
+function time(t){
+  return new Date(t).toLocaleString('ja-JP');
+}
+
+function remain(t){
+  return Math.max(
+    0,
+    Math.floor((new Date(t).getTime()-Date.now())/1000)
+  );
+}
+
+async function sessionCheck(){
+
+  const {data:{session}} = await sb.auth.getSession();
+
+  show('auth',!session);
+  show('app',!!session);
+  show('logout',!!session);
+
+  if(session){
+    await loadMessages();
+  }
+}
+
+async function login(){
+
+  const email=$('email').value.trim();
+  const password=$('password').value;
+
+  if(!email || !password){
+    status('メールアドレスとパスワードを入力してください。',true);
+    return;
+  }
+
+  $('signin').disabled=true;
+
+  const {error}=await sb.auth.signInWithPassword({
+    email,password
+  });
+
+  $('signin').disabled=false;
+
+  if(error){
+    status('ログインできませんでした：'+error.message,true);
+    return;
+  }
+
+  status('ログインしました。');
+
+  await sessionCheck();
+}
+
+async function sendReply(row,textarea,button){
+
+  const text=textarea.value.trim();
+
+  if(!text){
+    status('返信文を入力してください。',true);
+    return;
+  }
+
+  if(
+    !row.reply_available_until ||
+    new Date(row.reply_available_until).getTime() <= Date.now()
+  ){
+    status('無料返信の期限が終了しました。',true);
+    await loadMessages();
+    return;
+  }
+
+  if(!confirm(
+    '「'+(row.sender_display_name || 'この相手')+
+    '」へ個別返信しますか？'
+  )) return;
+
+  button.disabled=true;
+
+  const {data,error}=await sb.functions.invoke(
+    'line-reply',
+    {
+      body:{
+        line_message_id:row.line_message_id,
+        text:text
+      }
+    }
+  );
+
+  button.disabled=false;
+
+  if(error || !data?.ok){
+
+    status(
+      '返信に失敗しました：'+
+      (data?.error || error?.message || '不明なエラー'),
+      true
+    );
+
+    await loadMessages();
+    return;
+  }
+
+  status('LINEへ個別返信しました。');
+
+  await loadMessages();
+}
+
+async function loadMessages(){
+
+  const area=$('entries');
+
+  area.textContent='読み込み中…';
+
+  const {data,error}=await sb
+    .from('line_messages')
+    .select(
+      'id,sender_display_name,message_text,message_type,'+
+      'line_message_id,created_at,reply_available_until,replied_at'
+    )
+    .eq('direction','in')
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  area.replaceChildren();
+
+  if(error){
+    status('LINEの取得に失敗しました：'+error.message,true);
+    return;
+  }
+
+  if(!data?.length){
+    area.textContent='まだLINEメッセージはありません。';
+    return;
+  }
+
+  for(const row of data){
+
+    const article=document.createElement('div');
+    article.className='entry';
+
+    const top=document.createElement('div');
+    top.className='row between wrap';
+
+    const name=document.createElement('h3');
+
+    name.textContent=
+      row.sender_display_name || '送信者名不明';
+
+    top.append(name);
+
+    const available=
+      !row.replied_at &&
+      row.reply_available_until &&
+      new Date(row.reply_available_until).getTime() > Date.now();
+
+    const badge=document.createElement('span');
+    badge.className='pill';
+
+    if(row.replied_at){
+
+      badge.classList.add('green');
+      badge.textContent='返信済み';
+
+    }else if(available){
+
+      badge.classList.add('green');
+      badge.textContent='無料返信可';
+
+    }else{
+
+      badge.classList.add('gray');
+      badge.textContent='無料返信期限終了';
+    }
+
+    top.append(badge);
+    article.append(top);
+
+    const message=document.createElement('p');
+    message.className='message';
+
+    message.textContent=
+      row.message_text ??
+      '['+(row.message_type || 'message')+']';
+
+    article.append(message);
+
+    const date=document.createElement('small');
+    date.className='muted';
+    date.textContent=time(row.created_at);
+
+    article.append(date);
+
+    if(available){
+
+      const box=document.createElement('div');
+      box.className='reply';
+
+      const input=document.createElement('textarea');
+      input.placeholder='この相手への返信文';
+
+      box.append(input);
+
+      const controls=document.createElement('div');
+      controls.className='row between wrap';
+      controls.style.marginTop='8px';
+
+      const counter=document.createElement('small');
+      counter.className='muted';
+
+      function countdown(){
+        counter.textContent=
+          '無料返信の残り目安：'+
+          remain(row.reply_available_until)+'秒';
+      }
+
+      countdown();
+
+      const timer=setInterval(()=>{
+
+        if(!document.body.contains(counter)){
+          clearInterval(timer);
+          return;
+        }
+
+        countdown();
+
+      },1000);
+
+      const button=document.createElement('button');
+      button.textContent='個別に無料返信';
+
+      button.onclick=()=>{
+        sendReply(row,input,button);
+      };
+
+      controls.append(counter,button);
+      box.append(controls);
+
+      article.append(box);
+    }
+
+    area.append(article);
+  }
+}
+
+$('signin').onclick=login;
+
+$('refresh').onclick=loadMessages;
+
+$('logout').onclick=async()=>{
+
+  await sb.auth.signOut();
+
+  status('ログアウトしました。');
+
+  await sessionCheck();
+};
+
+sb.auth.onAuthStateChange(()=>{
+  setTimeout(sessionCheck,0);
+});
+
+sessionCheck();
+
+</script>
+
+</body>
+</html>
