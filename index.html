@@ -2,7 +2,21 @@
 <html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#172a44"><meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"><meta http-equiv="Pragma" content="no-cache"><meta http-equiv="Expires" content="0"><title>みんなの声</title>
 <link rel="manifest" href="manifest.webmanifest"><style>
-:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#172a44;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}header{background:#172a44;color:white;padding:17px 18px;display:flex;justify-content:space-between;align-items:center}header b{font-size:21px}main{max-width:750px;margin:auto;padding:16px}.card{background:white;border-radius:18px;padding:20px;margin:0 0 16px;box-shadow:0 3px 15px #1327440b}.muted{color:#617084;font-size:13px}.error{color:#b42318}.success{color:#127345}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.wrap{flex-wrap:wrap}label{display:block;font-weight:650;margin:14px 0 6px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;background:#fff;color:#172a44}textarea{resize:vertical;min-height:100px}button{border:0;border-radius:11px;background:#2466cc;color:white;padding:12px 16px;font-weight:700;cursor:pointer}button.secondary{background:#e7edf5;color:#24384f}button.danger{background:#ae2631}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #85b7ff}.tabs{display:flex;gap:8px;margin-bottom:18px}.tabs button,.tabs .tablink{flex:1}.tabs .tablink{display:flex;align-items:center;justify-content:center;text-decoration:none;border-radius:11px;background:#e7edf5;color:#24384f;padding:12px 10px;font-weight:700}.hidden{display:none!important}.entry{border-top:1px solid #e2e8f0;padding:16px 0}.entry:first-child{border-top:0}.entry h3{margin:8px 0}.entry-actions{display:flex;justify-content:flex-end;margin-top:8px}.entry-actions .danger{padding:8px 13px;font-size:13px}.pill{display:inline-block;background:#edf4ff;color:#2459a7;border-radius:15px;padding:4px 9px;font-size:12px;margin:2px 2px 2px 0}.pill.green{background:#e8f7ef;color:#187744}.mic{font-size:24px;background:#dc2f54;min-width:100px}.mic.active{background:#933347}.actions{margin-top:14px}.topspace{margin-top:14px}#message{margin:10px 0;font-size:14px}small{line-height:1.5}
+:root{font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif;color:#172a44;background:#f4f7fb}*{box-sizing:border-box}body{margin:0}header{background:#172a44;color:white;padding:17px 18px;display:flex;justify-content:space-between;align-items:center}header b{font-size:21px}main{max-width:750px;margin:auto;padding:16px}.card{background:white;border-radius:18px;padding:20px;margin:0 0 16px;box-shadow:0 3px 15px #1327440b}.muted{color:#617084;font-size:13px}.error{color:#b42318}.success{color:#127345}.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}.wrap{flex-wrap:wrap}label{display:block;font-weight:650;margin:14px 0 6px}input,select,textarea,button{font:inherit}input,select,textarea{width:100%;border:1px solid #cbd5e1;border-radius:10px;padding:12px;background:#fff;color:#172a44}textarea{resize:vertical;min-height:100px}button{border:0;border-radius:11px;background:#2466cc;color:white;padding:12px 16px;font-weight:700;cursor:pointer}button.secondary{background:#e7edf5;color:#24384f}button.danger{background:#ae2631}button:disabled{opacity:.5;cursor:not-allowed}button:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible{outline:3px solid #85b7ff}.tabs{display:flex;gap:8px;margin-bottom:18px}.tabs button,.tabs .tablink{flex:1}.tabs .tablink{display:flex;align-items:center;justify-content:center;text-decoration:none;border-radius:11px;background:#e7edf5;color:#24384f;padding:12px 10px;font-weight:700}.hidden{display:none!important}.entry{border-top:1px solid #e2e8f0;padding:16px 0}.entry:first-child{border-top:0}.entry h3{margin:8px 0}.entry-actions{display:flex;justify-content:flex-end;margin-top:8px}.entry-actions .danger{padding:8px 13px;font-size:13px}.pill{display:inline-block;background:#edf4ff;color:#2459a7;border-radius:15px;padding:4px 9px;font-size:12px;margin:2px 2px 2px 0}.pill.green{background:#e8f7ef;color:#187744}
+.pill.hot{background:#fff0c2;color:#8a4b00;font-weight:800}
+.pill.status-new{background:#eef1f4;color:#526273}
+.pill.status-review{background:#fff0dc;color:#9a5600}
+.pill.status-accepted{background:#e8f2ff;color:#2459a7}
+.pill.status-done{background:#e8f7ef;color:#187744}
+.entry.hot{border:2px solid #efaa2c;border-radius:14px;padding:15px;background:#fffaf0;margin:10px 0;box-shadow:0 3px 12px #b8730014}
+.progress-board{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:14px 0}
+.statbox{border-radius:12px;padding:10px 8px;text-align:center;background:#f5f7fa}
+.statbox b{display:block;font-size:22px;margin-top:2px}
+.progress-actions{display:flex;gap:8px;align-items:center;justify-content:flex-end;flex-wrap:wrap;margin-top:10px}
+.progress-actions select{width:auto;min-width:125px;padding:8px 10px}
+.progress-actions button{padding:8px 12px;font-size:13px}
+@media(max-width:560px){.progress-board{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.mic{font-size:24px;background:#dc2f54;min-width:100px}.mic.active{background:#933347}.actions{margin-top:14px}.topspace{margin-top:14px}#message{margin:10px 0;font-size:14px}small{line-height:1.5}
 </style></head><body><header><b>🎙 みんなの声</b><button id="logout" class="secondary hidden">ログアウト</button></header><main>
 <div id="message" role="status" aria-live="polite"></div>
 <section id="setup" class="card hidden"><h2>初期設定</h2><p>config.js に Supabase のURLと公開用キーを設定してください。</p></section>
@@ -11,11 +25,26 @@
 <div class="tabs"><button id="tabWrite">声を投稿</button><button id="tabFeed" class="secondary">掲示板</button><a class="tablink" href="line.html?v=20261006-3">LINE受信箱</a></div>
 <section id="write" class="card"><h2>あなたの意見を聞かせてください</h2><label for="mainCat">カテゴリー</label><select id="mainCat"></select><label for="subCat">中カテゴリー</label><select id="subCat"></select><label for="topic">テーマ（小カテゴリー）</label><input id="topic" placeholder="例：食券／配線"><label for="transcript">音声入力・文字起こし</label><textarea id="transcript" placeholder="マイクを押して話すか、直接入力してください。" rows="6"></textarea><div class="row actions wrap"><button id="mic" class="mic" type="button">🎙 話す</button><span id="micStatus" class="muted">Chromeなどの対応ブラウザで使用できます</span></div><p class="muted">ブラウザの音声認識を使用します。ブラウザによっては音声が外部の認識サービスへ送信されます。機密情報の入力には注意してください。</p>
 <label for="headline">投稿タイトル</label><input id="headline" placeholder="例：食券販売の待ち時間を減らしたい"><label for="summary">要約（投稿前に編集できます）</label><textarea id="summary" rows="4" placeholder="「要約案を作る」を押してください"></textarea><div class="row actions wrap"><button id="summarize" class="secondary">要約案を作る</button><button id="submit">掲示板に投稿</button></div><p id="summaryNote" class="muted">AIによる要約と自動分類を利用できます。要約が失敗した場合は簡易要約に切り替わります。</p></section>
-<section id="feed" class="card hidden"><h2>カテゴリー別掲示板</h2><label for="filterCat">カテゴリーで絞る</label><select id="filterCat"></select><div class="row actions"><button id="refresh" class="secondary">更新</button></div><div id="entries"></div></section></section>
+<section id="feed" class="card hidden">
+<h2>カテゴリー別掲示板</h2>
+<div id="statusSummary" class="progress-board"></div>
+<label for="filterCat">カテゴリーで絞る</label><select id="filterCat"></select>
+<label for="filterStatus">進捗で絞る</label>
+<select id="filterStatus">
+  <option value="">すべて</option>
+  <option value="new">未対応</option>
+  <option value="review">検討中</option>
+  <option value="accepted">実施決定</option>
+  <option value="done">完了</option>
+</select>
+<div class="row actions"><button id="refresh" class="secondary">更新</button></div>
+<div id="entries"></div>
+</section></section>
 </main><script src="config.js"></script><script type="module">
 import {createClient} from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 const $=id=>document.getElementById(id), cfg=window.APP_CONFIG||{};
 const categories={company:{'組立':['配線','部材','検査','工程改善','その他'],'束線':['ゲージ展開','配線','しばり','チェック','圧着','その他'],'品質':['不具合','再発防止','改善','その他'],'設備':['工具','機械','安全','その他'],'その他':['提案','相談','その他']},ethics:{'MS':['準備','受付','朝食会','進行','片付け','その他'],'普及':['声かけ','ゲスト対応','チーム活動','その他'],'研修':['役員研修','学び','実践','その他'],'行事':['倫理経営講演会','25周年式典','その他'],'その他':['提案','相談','その他']}};
+const statusLabels={new:'未対応',review:'検討中',accepted:'実施決定',done:'完了'};
 let sb,session=null,memberships=[],currentOrg=null,recognition=null,recording=false;
 function msg(s,error=false){$('message').textContent=s;$('message').className=error?'error':'success'}
 function visible(id,yes){$(id).classList.toggle('hidden',!yes)}
@@ -32,7 +61,110 @@ function localSummary(s){const chunks=s.replace(/[\n\r]+/g,'。').split(/[。！
 async function makeSummary(){const text=$('transcript').value.trim();if(!text){msg('音声または文章を入力してください。',true);return}let summary='';if(cfg.enableAiSummary){const {data,error}=await sb.functions.invoke('summarize',{body:{text,orgKind:currentOrg?.kind}});if(error||!data?.summary){msg('AI要約に失敗したため、簡易要約を表示します。',true);summary=localSummary(text)}else{summary=data.summary;if(data.title&&!$('headline').value)$('headline').value=data.title;if(data.main_category&&categories[currentOrg.kind][data.main_category]){$('mainCat').value=data.main_category;updateSub();if(data.sub_category&&(categories[currentOrg.kind][data.main_category]||[]).includes(data.sub_category))$('subCat').value=data.sub_category}if(data.topic&&!$('topic').value)$('topic').value=data.topic}}else{summary=localSummary(text);msg('簡易要約案を作りました。投稿前に編集してください。')} $('summary').value=summary;if(!$('headline').value)$('headline').value=summary.slice(0,35)||'新しい意見'}
 async function submit(){const title=$('headline').value.trim(),summary=$('summary').value.trim(),original=$('transcript').value.trim();if(!currentOrg||!title||!summary||!original){msg('文字起こし、タイトル、要約を入力してください。',true);return}if(!confirm('この内容を「'+currentOrg.name+'」のメンバーに公開しますか？'))return;$('submit').disabled=true;const {error}=await sb.from('posts').insert({org_id:currentOrg.id,author_id:session.user.id,title,summary,original_text:original,main_category:$('mainCat').value,sub_category:$('subCat').value,topic:$('topic').value.trim()||'その他'});$('submit').disabled=false;if(error){msg('投稿できませんでした: '+error.message,true);return}for(const id of ['headline','summary','transcript','topic'])$(id).value='';msg('投稿しました。');showTab('feed')}
 async function deletePost(p,button){if(!currentOrg||!session?.user)return;const orgId=currentOrg.id;const permitted=memberships.some(m=>m.org_id===orgId&&(m.role==='admin'||p.author_id===session.user.id));if(!permitted){msg('この投稿を削除する権限がありません。',true);return}if(!confirm('「'+p.title+'」を完全に削除しますか？ この操作は元に戻せません。'))return;button.disabled=true;const {data,error}=await sb.from('posts').delete().eq('id',p.id).eq('org_id',orgId).select('id');if(error){button.disabled=false;msg('削除できませんでした: '+error.message,true);return}if(!data?.length){button.disabled=false;msg('削除できませんでした。権限または投稿の状態を確認してください。',true);return}msg('投稿を削除しました。');if(currentOrg?.id===orgId)await loadPosts()}
-function badge(v,green=false){const span=document.createElement('span');span.className='pill'+(green?' green':'');span.textContent=v;return span}
-async function loadPosts(){if(!currentOrg)return;let query=sb.from('posts').select('id,author_id,title,summary,main_category,sub_category,topic,status,created_at').eq('org_id',currentOrg.id).order('created_at',{ascending:false}).limit(100);if($('filterCat').value)query=query.eq('main_category',$('filterCat').value);const {data,error}=await query;const el=$('entries');el.replaceChildren();if(error){msg('掲示板の取得に失敗: '+error.message,true);return}if(!data?.length){el.textContent='まだ意見はありません。';return}for(const p of data){const article=document.createElement('article');article.className='entry';const tags=document.createElement('div');for(const text of [...new Set([p.main_category,p.sub_category,p.topic].filter(Boolean))])tags.append(badge(text));tags.append(badge(({new:'新着',review:'検討中',accepted:'実施決定',done:'完了'})[p.status]||p.status,true));article.append(tags);const h=document.createElement('h3');h.textContent=p.title;article.append(h);const para=document.createElement('p');para.textContent=p.summary;article.append(para);const date=document.createElement('small');date.className='muted';date.textContent=new Date(p.created_at).toLocaleString('ja-JP');article.append(date);const myMembership=memberships.find(m=>m.org_id===currentOrg.id);if(session?.user?.id && myMembership && (p.author_id===session.user.id || myMembership.role==='admin')){const actions=document.createElement('div');actions.className='entry-actions';const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='削除';remove.setAttribute('aria-label',p.title+'を削除');remove.onclick=()=>deletePost(p,remove);actions.append(remove);article.append(actions)}el.append(article)}}
-$('signIn').onclick=()=>auth(false);$('signUp').onclick=()=>auth(true);$('logout').onclick=async()=>{await sb.auth.signOut();msg('ログアウトしました。')};$('org').onchange=selectOrg;$('mainCat').onchange=updateSub;$('tabWrite').onclick=()=>showTab('write');$('tabFeed').onclick=()=>showTab('feed');$('mic').onclick=startMic;$('summarize').onclick=makeSummary;$('submit').onclick=submit;$('refresh').onclick=loadPosts;$('filterCat').onchange=loadPosts;initialize().catch(e=>msg('初期化エラー: '+e.message,true));
+function badge(v,cls=''){const span=document.createElement('span');span.className='pill'+(cls?' '+cls:'');span.textContent=v;return span}
+
+async function updatePostStatus(p,select,button){
+  const next=select.value;
+  if(next===p.status)return;
+  if(!confirm('「'+p.title+'」を「'+statusLabels[next]+'」に変更しますか？')){select.value=p.status;return}
+  button.disabled=true;
+  const {data,error}=await sb.functions.invoke('post-status',{body:{post_id:p.id,status:next}});
+  button.disabled=false;
+  if(error||!data?.ok){
+    select.value=p.status;
+    msg('進捗を変更できませんでした: '+(data?.error||error?.message||'不明なエラー'),true);
+    return;
+  }
+  msg('進捗を「'+statusLabels[next]+'」に変更しました。');
+  await loadPosts();
+}
+
+function renderStatusSummary(rows){
+  const counts={new:0,review:0,accepted:0,done:0};
+  for(const p of rows)counts[p.status]=(counts[p.status]||0)+1;
+  const box=$('statusSummary');box.replaceChildren();
+  for(const key of ['new','review','accepted','done']){
+    const div=document.createElement('div');div.className='statbox';
+    const label=document.createElement('span');label.textContent=statusLabels[key];
+    const num=document.createElement('b');num.textContent=counts[key]||0;
+    div.append(label,num);box.append(div);
+  }
+}
+
+async function loadPosts(){
+  if(!currentOrg)return;
+
+  let query=sb.from('posts')
+    .select('id,author_id,title,summary,main_category,sub_category,topic,status,created_at,similar_count,last_similar_at')
+    .eq('org_id',currentOrg.id)
+    .order('created_at',{ascending:false})
+    .limit(100);
+
+  if($('filterCat').value)query=query.eq('main_category',$('filterCat').value);
+
+  const {data,error}=await query;
+  const el=$('entries');el.replaceChildren();
+
+  if(error){msg('掲示板の取得に失敗: '+error.message,true);return}
+
+  const rows=data||[];
+  renderStatusSummary(rows);
+
+  const wanted=$('filterStatus').value;
+  const shown=wanted?rows.filter(p=>p.status===wanted):rows;
+
+  if(!shown.length){el.textContent='この条件に当てはまる意見はありません。';return}
+
+  const myMembership=memberships.find(m=>m.org_id===currentOrg.id);
+  const isAdmin=myMembership?.role==='admin';
+
+  for(const p of shown){
+    const article=document.createElement('article');
+    article.className='entry'+((p.similar_count||1)>=3?' hot':'');
+
+    const tags=document.createElement('div');
+    for(const text of [...new Set([p.main_category,p.sub_category,p.topic].filter(Boolean))])tags.append(badge(text));
+
+    if((p.similar_count||1)>=3){
+      tags.append(badge('🔥 注目 '+p.similar_count+'件','hot'));
+    }else if((p.similar_count||1)>=2){
+      tags.append(badge('同様 '+p.similar_count+'件',''));
+    }
+
+    tags.append(badge(statusLabels[p.status]||p.status,'status-'+p.status));
+    article.append(tags);
+
+    const h=document.createElement('h3');h.textContent=p.title;article.append(h);
+    const para=document.createElement('p');para.textContent=p.summary;article.append(para);
+
+    const date=document.createElement('small');date.className='muted';
+    date.textContent=new Date(p.created_at).toLocaleString('ja-JP');
+    article.append(date);
+
+    if(isAdmin){
+      const progress=document.createElement('div');progress.className='progress-actions';
+      const label=document.createElement('span');label.className='muted';label.textContent='対応状況';
+      const select=document.createElement('select');
+      for(const key of ['new','review','accepted','done']){
+        const o=document.createElement('option');o.value=key;o.textContent=statusLabels[key];select.append(o);
+      }
+      select.value=p.status;
+      const save=document.createElement('button');save.type='button';save.className='secondary';save.textContent='進捗を変更';
+      save.onclick=()=>updatePostStatus(p,select,save);
+      progress.append(label,select,save);
+      article.append(progress);
+    }
+
+    if(session?.user?.id && myMembership && (p.author_id===session.user.id || isAdmin)){
+      const actions=document.createElement('div');actions.className='entry-actions';
+      const remove=document.createElement('button');remove.type='button';remove.className='danger';remove.textContent='削除';
+      remove.setAttribute('aria-label',p.title+'を削除');
+      remove.onclick=()=>deletePost(p,remove);
+      actions.append(remove);article.append(actions);
+    }
+
+    el.append(article);
+  }
+}
+$('signIn').onclick=()=>auth(false);$('signUp').onclick=()=>auth(true);$('logout').onclick=async()=>{await sb.auth.signOut();msg('ログアウトしました。')};$('org').onchange=selectOrg;$('mainCat').onchange=updateSub;$('tabWrite').onclick=()=>showTab('write');$('tabFeed').onclick=()=>showTab('feed');$('mic').onclick=startMic;$('summarize').onclick=makeSummary;$('submit').onclick=submit;$('refresh').onclick=loadPosts;$('filterCat').onchange=loadPosts;$('filterStatus').onchange=loadPosts;initialize().catch(e=>msg('初期化エラー: '+e.message,true));
 </script></body></html>
